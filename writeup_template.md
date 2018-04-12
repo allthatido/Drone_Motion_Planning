@@ -1,5 +1,5 @@
 ## Project: 3D Motion Planning
-![All That I Do](./misc/All That I Do logo retina.png)
+![All That I Do](./misc/All_That_I_Do_logo.png)
 
 ---
 
