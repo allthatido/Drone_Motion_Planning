@@ -1,5 +1,5 @@
 ## Project: 3D Motion Planning
-![Quad Image](./misc/enroute.png)
+![All That I Do](./misc/All That I Do logo retina.png)
 
 ---
 
