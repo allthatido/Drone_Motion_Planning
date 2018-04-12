@@ -1,4 +1,4 @@
-## Project: 3D Motion Planning
+## Project: 3D Motion Planning by
 ![All That I Do](./misc/All_That_I_Do_logo.png)
 
 ---
