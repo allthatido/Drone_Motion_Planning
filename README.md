@@ -1,24 +1,24 @@
 ## Project: 3D Motion Planning by
-![All That I Do](./misc/All_That_I_Do_logo.png)
+![All That I Do](./misc/All_That_I_Do_logo.PNG)
 
 ### Code walkthrough as below :
 ---
 
 #### 1. `motion_planning.py` 
 
-![library imports](./misc/mp_imports.png)
+![library imports](./misc/mp_imports.PNG)
 
 Importing all the necessary libraries for the code functioning. Adding additional libraries like `re` for regular expression, `os` and `sys` for setting current working  directory correctly while manual debugging
 
-![UAV states](./misc/mp_states.png)
+![UAV states](./misc/mp_states.PNG)
 
 Here we define all the states of the UAV using enumerations and assign a value automatically.
 
-![class initialization](./misc/mp_class_init.png)
+![class initialization](./misc/mp_class_init.PNG)
 
 The class `MotionPlanning` is defined which is a child class of the udacidrone `drone` class. Whenever an class object is instatntiated, the class variables, like `target_position` ,`waypoints` and `flight_state`, are initialized. Also three callback functions for state, position and velocity changes are registered.
 
-![position callback](./misc/mp_position_callback.png)
+![position callback](./misc/mp_position_callback.PNG)
 
 This is the position callback function which is triggered everytime there is a change in the position of the UAV. The function response depends on the `flight_state` variable :
 
@@ -26,11 +26,11 @@ This is the position callback function which is triggered everytime there is a c
 
 > `WAYPOINT` : When the flight state is **WAYPOINT** the function checks if the UAV is within 1m of the target waypoint. If that is the case and there are no more waypoints, it calls the `landing_transition()` function. If there are more waypoints left , then the `waypoint_transition()` function is called again to proceed to the next waypoint.
 
-![velocity callback](./misc/mp_velocity_callback.png)
+![velocity callback](./misc/mp_velocity_callback.PNG)
 
 This is the velocity callback function which is triggered whenever there is a change in the velocity of the UAV. This function responds only when the UAV is in the **LANDING** state and checks if the UAV altitude is within 0.1m of the global home position altitude. If so and the UAV is within 0.01m of the ground, the function calls the `disarming_transition()` function.
 
-![state callback](./misc/mp_state_callback.png)
+![state callback](./misc/mp_state_callback.PNG)
 
 The `state_callback()` function is called periodically in a heartbeat fashion and is responsible for advancing the flight status of the UAV. The function responds based on the current flight status as below:
 
@@ -42,7 +42,7 @@ The `state_callback()` function is called periodically in a heartbeat fashion an
 
 > `DISARMING` : When the flight state is **DISARMING** and the UAV is not armed and not in guided mode, the function calls the `manual_transition()` function to disarm the UAV
 
-![armin transition](./misc/mp_arming_transition.png)
+![armin transition](./misc/mp_arming_transition.PNG)
 
 The `arming_transition()` function performs the following tasks :
 
@@ -50,14 +50,14 @@ The `arming_transition()` function performs the following tasks :
 - &nbsp; Arms the drone
 - &nbsp; Changes control of UAV from manual to guided
 
-![takeoff transition](./misc/mp_takeoff_transition.png)
+![takeoff transition](./misc/mp_takeoff_transition.PNG)
 
 The `takeoff_transition()` function performs the following tasks :
 
 - &nbsp; Changes the flight state to **TAKEOFF** 
 - &nbsp; Initiates the UAV takeoff to the target position altitude.
 
-![waypoint tansition](./misc/mp_waypoint_transition.png)
+![waypoint tansition](./misc/mp_waypoint_transition.PNG)
 
 The `waypoint_transition()` function performs the following tasks :
 
@@ -65,14 +65,14 @@ The `waypoint_transition()` function performs the following tasks :
 - &nbsp; Sets the target position to the next waypooint.
 - &nbsp; Commans the UAV to the target position.
 
-![landing transition](./misc/mp_landing_transition.png)
+![landing transition](./misc/mp_landing_transition.PNG)
 
 The `landing_transition()` function performs the following tasks :
 
 - &nbsp; Changes the flight state to **LANDING** 
 - &nbsp; Initiates the landing pocedure of the UAV.
 
-![disarming transition](./misc/mp_disarming_transition.png)
+![disarming transition](./misc/mp_disarming_transition.PNG)
 
 The `disarming_transition()` function performs the following tasks :
 
@@ -80,7 +80,7 @@ The `disarming_transition()` function performs the following tasks :
 - &nbsp; Disarms the drone
 - &nbsp; Changes control of UAV from guided to manual
 
-![manual transition](./misc/mp_manual_transition.png)
+![manual transition](./misc/mp_manual_transition.PNG)
 
 The `manual_transition()` function performs the following tasks :
 
@@ -88,11 +88,11 @@ The `manual_transition()` function performs the following tasks :
 - &nbsp; Stops the drone
 - &nbsp; Sets the `in_mission` variable to False
 
-![waypoint transition](./misc/mp_send_waypoints.png)
+![waypoint transition](./misc/mp_send_waypoints.PNG)
 
 The `send_waypoint()` function sends the waypoints to the FCND Simulator for visualization purposes.
 
-![plan path](./misc/mp_plan_path.png)
+![plan path](./misc/mp_plan_path.PNG)
 
 The `plan_path()` function performs the following tasks :
 
@@ -106,16 +106,16 @@ The current position of the UAV is obtained by the `self.global_position` method
 
 The map data is then read to create a grid representation of the map and the grid start and goal locations are defined.
 
-![plan path continued](./misc/mp_plan_path2.png)
+![plan path continued](./misc/mp_plan_path2.PNG)
 
 After the grid start and goal have been defined, the search algorithm A* is used to find a path throught the grid. The path along with the path cost is returned by the A* function. This path is then pruned using bresenham line drawing algorithm and removing all intermediary waypoints.
 
 The path is also plotted using matplotlib to get a visual representation of the same. The path is then converted to waypoints by adding the north offset and the east offset into the grid points returned by A*. 
 
-![start](./misc/mp_start.png)
+![start](./misc/mp_start.PNG)
 
 The `start` function starts the connection with the UAV in the simulator and initializes the logs.
 
-![call](./misc/mp_call.png)
+![call](./misc/mp_call.PNG)
 
 Here we are parsing the arguments for the MAVLINK connection. We then instatntiate a drone object of the MotionPlanning class. After waiting for 1 millisecond,the `start()` function is called.
