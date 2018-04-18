@@ -1,88 +1,121 @@
-# FCND - 3D Motion Planning
-![Quad Image](./misc/enroute.png)
+## Project: 3D Motion Planning by
+![All That I Do](./misc/All_That_I_Do_logo.png)
 
+### Code walkthrough as below :
+---
 
+#### 1. `motion_planning.py` 
 
-This project is a continuation of the Backyard Flyer project where you executed a simple square shaped flight path. In this project you will integrate the techniques that you have learned throughout the last several lessons to plan a path through an urban environment. Check out the [project rubric](https://review.udacity.com/#!/rubrics/1534/view) for more detail on what constitutes a passing submission.
+![library imports](./misc/mp_imports.png)
 
-## Option to do this project in a GPU backed virtual machine in the Udacity classroom!
-Rather than downloading the simulator and starter files you can simply complete this project in a virual workspace in the Udacity classroom! Follow [these instructions](https://classroom.udacity.com/nanodegrees/nd787/parts/5aa0a956-4418-4a41-846f-cb7ea63349b3/modules/0c12632a-b59a-41c1-9694-2b3508f47ce7/lessons/5f628104-5857-4a3f-93f0-d8a53fe6a8fd/concepts/ab09b378-f85f-49f4-8845-d59025dd8a8e?contentVersion=1.0.0&contentLocale=en-us) to proceed with the VM. 
+Importing all the necessary libraries for the code functioning. Adding additional libraries like `re` for regular expression, `os` and `sys` for setting current working  directory correctly while manual debugging
 
-## To complete this project on your local machine, follow these instructions:
-### Step 1: Download the Simulator
-This is a new simulator environment!  
+![UAV states](./misc/mp_states.png)
 
-Download the Motion-Planning simulator for this project that's appropriate for your operating system from the [simulator releases respository](https://github.com/udacity/FCND-Simulator-Releases/releases).
+Here we define all the states of the UAV using enumerations and assign a value automatically.
 
-### Step 2: Set up your Python Environment
-If you haven't already, set up your Python environment and get all the relevant packages installed using Anaconda following instructions in [this repository](https://github.com/udacity/FCND-Term1-Starter-Kit)
+![class initialization](./misc/mp_class_init.png)
 
-### Step 3: Clone this Repository
-```sh
-git clone https://github.com/udacity/FCND-Motion-Planning
-```
-### Step 4: Test setup
-The first task in this project is to test the [solution code](https://github.com/udacity/FCND-Motion-Planning/blob/master/backyard_flyer_solution.py) for the Backyard Flyer project in this new simulator. Verify that your Backyard Flyer solution code works as expected and your drone can perform the square flight path in the new simulator. To do this, start the simulator and run the [`backyard_flyer_solution.py`](https://github.com/udacity/FCND-Motion-Planning/blob/master/backyard_flyer_solution.py) script.
+The class `MotionPlanning` is defined which is a child class of the udacidrone `drone` class. Whenever an class object is instatntiated, the class variables, like `target_position` ,`waypoints` and `flight_state`, are initialized. Also three callback functions for state, position and velocity changes are registered.
 
-```sh
-source activate fcnd # if you haven't already sourced your Python environment, do so now.
-python backyard_flyer_solution.py
-```
-The quad should take off, fly a square pattern and land, just as in the previous project. If everything functions as expected then you are ready to start work on this project. 
+![position callback](./misc/mp_position_callback.png)
 
-### Step 5: Inspect the relevant files
-For this project, you are provided with two scripts, `motion_planning.py` and `planning_utils.py`. Here you'll also find a file called `colliders.csv`, which contains the 2.5D map of the simulator environment. 
+This is the position callback function which is triggered everytime there is a change in the position of the UAV. The function response depends on the `flight_state` variable :
 
-### Step 6: Explain what's going on in  `motion_planning.py` and `planning_utils.py`
+> `TAKEOFF` : When the flight state is **TAKEOFF** the function checks if the UAV is within 95 % of the target altitude. When so, it calls the `waypoint_transition()` function.
 
-`motion_planning.py` is basically a modified version of `backyard_flyer.py` that leverages some extra functions in `planning_utils.py`. It should work right out of the box.  Try running `motion_planning.py` to see what it does. To do this, first start up the simulator, then at the command line:
- 
-```sh
-source activate fcnd # if you haven't already sourced your Python environment, do so now.
-python motion_planning.py
-```
+> `WAYPOINT` : When the flight state is **WAYPOINT** the function checks if the UAV is within 1m of the target waypoint. If that is the case and there are no more waypoints, it calls the `landing_transition()` function. If there are more waypoints left , then the `waypoint_transition()` function is called again to proceed to the next waypoint.
 
-You should see the quad fly a jerky path of waypoints to the northeast for about 10 m then land.  What's going on here? Your first task in this project is to explain what's different about `motion_planning.py` from the `backyard_flyer_solution.py` script, and how the functions provided in `planning_utils.py` work. 
+![velocity callback](./misc/mp_velocity_callback.png)
 
-### Step 7: Write your planner
+This is the velocity callback function which is triggered whenever there is a change in the velocity of the UAV. This function responds only when the UAV is in the **LANDING** state and checks if the UAV altitude is within 0.1m of the global home position altitude. If so and the UAV is within 0.01m of the ground, the function calls the `disarming_transition()` function.
 
-Your planning algorithm is going to look something like the following:
+![state callback](./misc/mp_state_callback.png)
 
-- Load the 2.5D map in the `colliders.csv` file describing the environment.
-- Discretize the environment into a grid or graph representation.
-- Define the start and goal locations. You can determine your home location from `self._latitude` and `self._longitude`. 
-- Perform a search using A* or other search algorithm. 
-- Use a collinearity test or ray tracing method (like Bresenham) to remove unnecessary waypoints.
-- Return waypoints in local ECEF coordinates (format for `self.all_waypoints` is [N, E, altitude, heading], where the drone’s start location corresponds to [0, 0, 0, 0]). 
+The `state_callback()` function is called periodically in a heartbeat fashion and is responsible for advancing the flight status of the UAV. The function responds based on the current flight status as below:
 
-Some of these steps are already implemented for you and some you need to modify or implement yourself.  See the [rubric](https://review.udacity.com/#!/rubrics/1534/view) for specifics on what you need to modify or implement.
+> `MANUAL` : When the flight state is **MANUAL** the function calls the `arming_transition()` function to proceed to arm and gain control of the UAV.
 
-### Step 8: Write it up!
-When you're finished, complete a detailed writeup of your solution and discuss how you addressed each step. You can use the [`writeup_template.md`](./writeup_template.md) provided here or choose a different format, just be sure to describe clearly the steps you took and code you used to address each point in the [rubric](https://review.udacity.com/#!/rubrics/1534/view). And have fun!
+> `ARMING` : When the flight state is **ARMING** and the UAV is armed, the function calls on the `path_plan()` function to proceed to plan a path for the UAV to follow.
 
-## Extra Challenges
-The submission requirements for this project are laid out in the rubric, but if you feel inspired to take your project above and beyond, or maybe even keep working on it after you submit, then here are some suggestions for interesting things to try.
+> `PLANNING` : When the flight state is **PLANNING** the function calls the `takeoff_transition()` function to make the UAV takeoff to target altitude.
 
-### Try flying more complex trajectories
-In this project, things are set up nicely to fly right-angled trajectories, where you ascend to a particular altitude, fly a path at that fixed altitude, then land vertically. However, you have the capability to send 3D waypoints and in principle you could fly any trajectory you like. Rather than simply setting a target altitude, try sending altitude with each waypoint and set your goal location on top of a building!
+> `DISARMING` : When the flight state is **DISARMING** and the UAV is not armed and not in guided mode, the function calls the `manual_transition()` function to disarm the UAV
 
-### Adjust your deadbands
-Adjust the size of the deadbands around your waypoints, and even try making deadbands a function of velocity. To do this, you can simply modify the logic in the `local_position_callback()` function.
+![armin transition](./misc/mp_arming_transition.png)
 
-### Add heading commands to your waypoints
-This is a recent update! Make sure you have the [latest version of the simulator](https://github.com/udacity/FCND-Simulator-Releases/releases). In the default setup, you're sending waypoints made up of NED position and heading with heading set to 0 in the default setup. Try passing a unique heading with each waypoint. If, for example, you want to send a heading to point to the next waypoint, it might look like this:
+The `arming_transition()` function performs the following tasks :
 
-```python
-# Define two waypoints with heading = 0 for both
-wp1 = [n1, e1, a1, 0]
-wp2 = [n2, e2, a2, 0]
-# Set heading of wp2 based on relative position to wp1
-wp2[3] = np.arctan2((wp2[1]-wp1[1]), (wp2[0]-wp1[0]))
-```
+- &nbsp; Changes the flight state to **ARMING** 
+- &nbsp; Arms the drone
+- &nbsp; Changes control of UAV from manual to guided
 
-This may not be completely intuitive, but this will yield a yaw angle that is positive counterclockwise about a z-axis (down) axis that points downward.
+![takeoff transition](./misc/mp_takeoff_transition.png)
 
-Put all of these together and make up your own crazy paths to fly! Can you fly a double helix?? 
-![Double Helix](./misc/double_helix.gif)
+The `takeoff_transition()` function performs the following tasks :
 
-Ok flying a double helix might seem like a silly idea, but imagine you are an autonomous first responder vehicle. You need to first fly to a particular building or location, then fly a reconnaissance pattern to survey the scene! Give it a try!
+- &nbsp; Changes the flight state to **TAKEOFF** 
+- &nbsp; Initiates the UAV takeoff to the target position altitude.
+
+![waypoint tansition](./misc/mp_waypoint_transition.png)
+
+The `waypoint_transition()` function performs the following tasks :
+
+- &nbsp; Changes the flight state to **WAYPOINT** 
+- &nbsp; Sets the target position to the next waypooint.
+- &nbsp; Commans the UAV to the target position.
+
+![landing transition](./misc/mp_landing_transition.png)
+
+The `landing_transition()` function performs the following tasks :
+
+- &nbsp; Changes the flight state to **LANDING** 
+- &nbsp; Initiates the landing pocedure of the UAV.
+
+![disarming transition](./misc/mp_disarming_transition.png)
+
+The `disarming_transition()` function performs the following tasks :
+
+- &nbsp; Changes the flight state to **DISARMING**
+- &nbsp; Disarms the drone
+- &nbsp; Changes control of UAV from guided to manual
+
+![manual transition](./misc/mp_manual_transition.png)
+
+The `manual_transition()` function performs the following tasks :
+
+- &nbsp; Changes the flight state to **MANUAL**
+- &nbsp; Stops the drone
+- &nbsp; Sets the `in_mission` variable to False
+
+![waypoint transition](./misc/mp_send_waypoints.png)
+
+The `send_waypoint()` function sends the waypoints to the FCND Simulator for visualization purposes.
+
+![plan path](./misc/mp_plan_path.png)
+
+The `plan_path()` function performs the following tasks :
+
+- &nbsp; Changes the flight state to **PLANNING**
+- &nbsp; Sets the `TARGET_ALTITUDE` & `SAFETY_DISTANCE` parameters
+- &nbsp; Sets the `target_position` altitude to `TARGET_ALTITUDE`
+
+The function then reads the first line the map data ie `colliders.csv` to extract the latitude and longitude of the map center. The extracted latitude and longitude information is then used to se the home position of the UAV with 0 as the home altitude.
+
+The current position of the UAV is obtained by the `self.global_position` method. The global position and the global home position is used to calculate the local position of the UAV in the local NED frame.
+
+The map data is then read to create a grid representation of the map and the grid start and goal locations are defined.
+
+![plan path continued](./misc/mp_plan_path2.png)
+
+After the grid start and goal have been defined, the search algorithm A* is used to find a path throught the grid. The path along with the path cost is returned by the A* function. This path is then pruned using bresenham line drawing algorithm and removing all intermediary waypoints.
+
+The path is also plotted using matplotlib to get a visual representation of the same. The path is then converted to waypoints by adding the north offset and the east offset into the grid points returned by A*. 
+
+![start](./misc/mp_start.png)
+
+The `start` function starts the connection with the UAV in the simulator and initializes the logs.
+
+![call](./misc/mp_call.png)
+
+Here we are parsing the arguments for the MAVLINK connection. We then instatntiate a drone object of the MotionPlanning class. After waiting for 1 millisecond,the `start()` function is called.
