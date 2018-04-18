@@ -1,5 +1,5 @@
 ## Project: 3D Motion Planning by
-![All That I Do](./misc/All_That_I_Do_logo.PNG)
+![All That I Do](./misc/Logo.PNG)
 
 ### Code walkthrough as below :
 ---
@@ -100,7 +100,7 @@ The `plan_path()` function performs the following tasks :
 - &nbsp; Sets the `TARGET_ALTITUDE` & `SAFETY_DISTANCE` parameters
 - &nbsp; Sets the `target_position` altitude to `TARGET_ALTITUDE`
 
-The function then reads the first line the map data ie `colliders.csv` to extract the latitude and longitude of the map center. The extracted latitude and longitude information is then used to se the home position of the UAV with 0 as the home altitude.
+The function then reads the first line the map data ie `colliders.csv` to extract the latitude and longitude of the map center. The extracted latitude and longitude information is then used to set the home position of the UAV with 0 as the home altitude.
 
 The current position of the UAV is obtained by the `self.global_position` method. The global position and the global home position is used to calculate the local position of the UAV in the local NED frame.
 
