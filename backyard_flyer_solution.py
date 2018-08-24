@@ -41,7 +41,7 @@ class BackyardFlyer(Drone):
 
     def local_position_callback(self):
         if self.flight_state == States.TAKEOFF:
-            if -1.0 * self.local_position[2] > 0.95 * self.target_position[2]:
+            if -1.0 * self.local_position[2] > 0.85 * self.target_position[2]:
                 self.all_waypoints = self.calculate_box()
                 self.waypoint_transition()
         elif self.flight_state == States.WAYPOINT:
